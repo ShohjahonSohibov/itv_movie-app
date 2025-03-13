@@ -18,6 +18,9 @@ func NewDatabase() (*gorm.DB, error) {
 		DBName:   "movies_db",
 	}
 
+	// dsn := fmt.Sprintf("postgres://%s:%s@%s/%s",
+	// cfg.User, cfg.Password, cfg.Host, cfg.DBName)
+
 	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=disable",
 		cfg.Host, cfg.User, cfg.Password, cfg.DBName, cfg.Port)
 

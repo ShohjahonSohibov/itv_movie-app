@@ -75,24 +75,62 @@ func (r *MovieRepository) GetAll(filter *models.MovieListRequest) (*models.Movie
 }
 
 func (r *MovieRepository) Create(movie *models.Movie) error {
-	return r.db.Exec(`
-    INSERT INTO movies (
-        id, title, director, year, plot, imdb_rating, itv_rating, 
-        kinopoisk_rating, duration, budget, created_at
-    ) VALUES (
-        ?, ?, ?, ?, ?, ?, ?, 
-        ?, ?, ?, ?
-    )
-    `,
-		uuid.New(), movie.Title, movie.Director, movie.Year, movie.Plot, movie.ImdbRating, movie.ItvRating, movie.KinopoiskRating, movie.Duration, movie.Budget, time.Now()).Error
+    return r.db.Transaction(func(tx *gorm.DB) error {
+        // Generate new UUID
+        movie.ID = uuid.New()
+        movie.CreatedAt = time.Now()
+
+        if err := tx.Create(movie).Error; err != nil {
+            return err
+        }
+
+        // other entities
+
+        return nil
+    })
 }
 
 func (r *MovieRepository) Update(movie *models.Movie) error {
-	// Safe: GORM handles parameter sanitization
-	return r.db.Model(&models.Movie{}).Where("id = ?", movie.ID).Updates(movie).Error
+    return r.db.Transaction(func(tx *gorm.DB) error {
+        movie.UpdatedAt = time.Now()
+
+        result := tx.Model(&models.Movie{}).
+            Where("id = ?", movie.ID).
+            Updates(movie)
+
+        if result.Error != nil {
+            return result.Error
+        }
+
+        if result.RowsAffected == 0 {
+            return gorm.ErrRecordNotFound
+        }
+
+        // other entities
+
+        return nil
+    })
 }
 
 func (r *MovieRepository) Delete(id string) error {
-	// Safe: GORM handles parameter sanitization
-	return r.db.Where("id = ?", id).Delete(&models.Movie{}).Error
+    return r.db.Transaction(func(tx *gorm.DB) error {
+        // Parse UUID
+        parsedID, err := uuid.Parse(id)
+        if err != nil {
+            return err
+        }
+
+        result := tx.Where("id = ?", parsedID).Delete(&models.Movie{})
+        if result.Error != nil {
+            return result.Error
+        }
+
+        if result.RowsAffected == 0 {
+            return gorm.ErrRecordNotFound
+        }
+
+        // other entities
+
+        return nil
+    })
 }
