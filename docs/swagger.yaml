@@ -1,0 +1,341 @@
+basePath: /api/v1
+definitions:
+  itv_movie_app_internal_models.CreateMovieRequest:
+    properties:
+      budget:
+        minimum: 0
+        type: integer
+      director:
+        maxLength: 255
+        type: string
+      duration:
+        maximum: 1000
+        minimum: 1
+        type: integer
+      imdb_rating:
+        maximum: 10
+        minimum: 0
+        type: number
+      itv_rating:
+        maximum: 10
+        minimum: 0
+        type: number
+      kinopoisk_rating:
+        maximum: 10
+        minimum: 0
+        type: number
+      plot:
+        maxLength: 5000
+        type: string
+      title:
+        maxLength: 255
+        minLength: 1
+        type: string
+      year:
+        maximum: 2100
+        minimum: 1888
+        type: integer
+    required:
+    - title
+    type: object
+  itv_movie_app_internal_models.Movie:
+    properties:
+      budget:
+        minimum: 0
+        type: integer
+      created_at:
+        type: string
+      director:
+        maxLength: 255
+        type: string
+      duration:
+        maximum: 1000
+        minimum: 1
+        type: integer
+      id:
+        type: string
+      imdb_rating:
+        maximum: 10
+        minimum: 0
+        type: number
+      itv_rating:
+        maximum: 10
+        minimum: 0
+        type: number
+      kinopoisk_rating:
+        maximum: 10
+        minimum: 0
+        type: number
+      plot:
+        maxLength: 5000
+        type: string
+      title:
+        maxLength: 255
+        minLength: 1
+        type: string
+      updated_at:
+        type: string
+      year:
+        maximum: 2100
+        minimum: 1888
+        type: integer
+    required:
+    - title
+    type: object
+  itv_movie_app_internal_models.MovieListResponse:
+    properties:
+      count:
+        type: integer
+      items:
+        items:
+          $ref: '#/definitions/itv_movie_app_internal_models.Movie'
+        type: array
+    type: object
+  itv_movie_app_internal_models.UpdateMovieRequest:
+    properties:
+      budget:
+        minimum: 0
+        type: integer
+      director:
+        maxLength: 255
+        type: string
+      duration:
+        maximum: 1000
+        minimum: 1
+        type: integer
+      imdb_rating:
+        maximum: 10
+        minimum: 0
+        type: number
+      itv_rating:
+        maximum: 10
+        minimum: 0
+        type: number
+      kinopoisk_rating:
+        maximum: 10
+        minimum: 0
+        type: number
+      plot:
+        maxLength: 5000
+        type: string
+      title:
+        maxLength: 255
+        minLength: 1
+        type: string
+      updated_at:
+        type: string
+      year:
+        maximum: 2100
+        minimum: 1888
+        type: integer
+    type: object
+host: localhost:8080
+info:
+  contact: {}
+  description: A Movie management API.
+  title: Movie API
+  version: "1.0"
+paths:
+  /movies:
+    get:
+      consumes:
+      - application/json
+      description: Get a list of all movies with optional filtering
+      parameters:
+      - in: query
+        maxLength: 255
+        name: director
+        type: string
+      - in: query
+        name: limit
+        type: integer
+      - in: query
+        maximum: 10
+        minimum: 0
+        name: min_imdb_rating
+        type: number
+      - in: query
+        maximum: 10
+        minimum: 0
+        name: min_itv_rating
+        type: number
+      - in: query
+        maximum: 10
+        minimum: 0
+        name: min_kinopoisk_rating
+        type: number
+      - in: query
+        name: offset
+        type: integer
+      - in: query
+        name: page
+        type: integer
+      - in: query
+        maxLength: 255
+        name: title
+        type: string
+      - in: query
+        maximum: 2100
+        minimum: 1888
+        name: year_from
+        type: integer
+      - in: query
+        maximum: 2100
+        minimum: 1888
+        name: year_to
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/itv_movie_app_internal_models.MovieListResponse'
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: List all movies
+      tags:
+      - movies
+    post:
+      consumes:
+      - application/json
+      description: Create a new movie with the provided details
+      parameters:
+      - description: Movie details
+        in: body
+        name: movie
+        required: true
+        schema:
+          $ref: '#/definitions/itv_movie_app_internal_models.CreateMovieRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/itv_movie_app_internal_models.CreateMovieRequest'
+        "400":
+          description: Invalid request payload
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Create a new movie
+      tags:
+      - movies
+  /movies/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a movie by its ID
+      parameters:
+      - description: Movie ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success message
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Invalid ID format
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Delete a movie
+      tags:
+      - movies
+    get:
+      consumes:
+      - application/json
+      description: Get details of a specific movie by its ID
+      parameters:
+      - description: Movie ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/itv_movie_app_internal_models.Movie'
+        "400":
+          description: Invalid ID format
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Movie not found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get a movie by ID
+      tags:
+      - movies
+    put:
+      consumes:
+      - application/json
+      description: Update an existing movie's details
+      parameters:
+      - description: Movie ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Movie details to update
+        in: body
+        name: movie
+        required: true
+        schema:
+          $ref: '#/definitions/itv_movie_app_internal_models.UpdateMovieRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/itv_movie_app_internal_models.Movie'
+        "400":
+          description: Invalid request payload or ID
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Update a movie
+      tags:
+      - movies
+swagger: "2.0"
