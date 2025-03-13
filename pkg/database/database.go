@@ -2,6 +2,7 @@ package database
 
 import (
 	"fmt"
+	"itv_movie_app/config"
 	"itv_movie_app/internal/models"
 
 	"gorm.io/driver/postgres"
@@ -10,12 +11,18 @@ import (
 )
 
 func NewDatabase() (*gorm.DB, error) {
+
+	config, err := config.Load()
+	if err != nil {
+		return nil, err
+	}
+	fmt.Println("DB_HOST:", config.Database.Host)
 	cfg := models.DatabaseConfig{
-		Host:     "localhost",
-		Port:     "5432",
-		User:     "postgres",
-		Password: "postgres",
-		DBName:   "movies_db",
+		Host:     config.Database.Host,
+		Port:     config.Database.Port,
+		User:     config.Database.User,
+		Password: config.Database.Password,
+		DBName:   config.Database.DBName,
 	}
 
 	dsn := fmt.Sprintf("postgres://%s:%s@%s/%s",
