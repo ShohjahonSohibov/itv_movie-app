@@ -18,7 +18,7 @@ import (
 // @title           Movie API
 // @version         1.0
 // @description     A Movie management API.
-// @host           https://itv-movie-app.onrender.com
+// @host           localhost:8080
 // @BasePath       /api/v1
 
 func NewGinEngine() *gin.Engine {
